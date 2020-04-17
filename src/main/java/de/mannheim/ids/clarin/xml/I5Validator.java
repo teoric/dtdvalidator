@@ -47,6 +47,7 @@ public class I5Validator {
 
     /**
      * validate using DOM (DTD as defined in the XML)
+     * @return whether document is valid
      */
     public static boolean validateWithDTDUsingDOM(InputStream xml)
             throws ParserConfigurationException, IOException {
@@ -74,6 +75,7 @@ public class I5Validator {
 
     /**
      * validate using SAX (DTD as defined in the XML)
+     * @return whether document is valid
      */
     public static boolean validateWithDTDUsingSAX(InputStream xml)
             throws ParserConfigurationException, IOException {
