@@ -35,7 +35,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
             "compression: ${COMPLETION-CANDIDATES}, default: " +
                     "${DEFAULT-VALUE} (overridden from file name!)", defaultValue = "none")
     Compression compression;
-    @CommandLine.Parameters(arity = "1..*", description = "input files, by default STDIN")
+    @CommandLine.Parameters(arity = "1..*", description = "input files")
     private List<File> inputFiles;
     @CommandLine.Option(names = {"-d", "--dom"}, description = "use DOM " +
             "instead of SAX")
