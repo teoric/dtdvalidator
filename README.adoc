@@ -1,0 +1,39 @@
+= DTD-based XML Validator
+
+== Purpose
+
+For some big files, `xmllint` fails or takes a long time.
+A validating parse with Java's libraries does more or less the same checks.
+
+== Build and use
+
+Build is configured to need Java 11.  May be possible to tweak `pom.xml` to compile on Java 8.
+
+[source, shell]
+mvn package dependency:copy-dependencies
+java -jar .\target\i5validator-0.1-SNAPSHOT.jar -h
+
+Read help, validate ;-)
+
+Features:
+
+- multiple files
+- writes log file
+- processes compressed streams (xz, bzip2, gz)
+- can work in parallel
+- can use DOM or SAX
+- can write grouped error messages to JSON file
+
+
+Not supported:
+
+- validation against XSD, RNC, RNG, Schematron
+
+
+Parsing based on code from <https://www.rgagnon.com/javadetails/java-0668.html>
+
+
+== License
+
+Don't blame, +
+Don't sell.
