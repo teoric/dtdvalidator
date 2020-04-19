@@ -222,8 +222,8 @@ public class I5Validator {
 
             XMLReader reader = parser.getXMLReader();
             reader.setEntityResolver((publicId, systemId) -> {
-                logger.info("LOADING ENTITY public: «{}» sys: «{}»", publicId,
-                        systemId);
+                logger.info("LOADING ENTITY public: «{}» system: «{}»",
+                        publicId, systemId);
                 return null; // default
             });
             CollectingErrorHandler handler = new CollectingErrorHandler(name,
