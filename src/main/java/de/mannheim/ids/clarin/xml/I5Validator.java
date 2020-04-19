@@ -3,28 +3,28 @@ package de.mannheim.ids.clarin.xml;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 // DOM
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 // SAX
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.XMLReader;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class I5Validator {
 
@@ -36,33 +36,30 @@ public class I5Validator {
      * ErrorHandler that fails on encountering the first serious error
      */
     private static class FailingErrorHandler implements ErrorHandler {
-        public void warning(SAXParseException e)
-                        throws SAXException {
-            logger.warn("WARNING : " + e
-                    .getMessage()); // do nothing
+        @Override
+        public void warning(SAXParseException e) throws SAXException {
+            logger.warn("WARNING : " + e.getMessage()); // do nothing
         }
 
-        public void error(SAXParseException e)
-                        throws SAXException {
-            logger.error(
-                    "ERROR : " + e.getMessage());
+        @Override
+        public void error(SAXParseException e) throws SAXException {
+            logger.error("ERROR : " + e.getMessage());
             throw e;
         }
 
-        public void fatalError(SAXParseException e)
-                        throws SAXException {
-            logger.error(
-                    "FATAL : " + e.getMessage());
+        @Override
+        public void fatalError(SAXParseException e) throws SAXException {
+            logger.error("FATAL : " + e.getMessage());
             throw e;
         }
     }
 
     private ConcurrentHashMap<String, Map<String, ErrorInfo>> errorMap;
+
     I5Validator(boolean keepRecord) {
         this.keepRecord = keepRecord;
         errorMap = new ConcurrentHashMap<>();
     }
-
 
     /**
      * a SAX ErrorHandler that collects the errors into a map structure
@@ -81,7 +78,8 @@ public class I5Validator {
          * a map of error messages
          */
         private Map<String, ErrorInfo> errorMap;
-        Logger logger = LoggerFactory.getLogger(CollectingErrorHandler.class.getSimpleName());
+        Logger logger = LoggerFactory
+                .getLogger(CollectingErrorHandler.class.getSimpleName());
 
         /**
          * an error handler that collects its errors in a list
@@ -132,13 +130,14 @@ public class I5Validator {
          * @param columnNumber
          *     the column number
          */
-        private void addErrorInfo(String message,
-                                  int lineNumber, int columnNumber) {
+        private void addErrorInfo(String message, int lineNumber,
+                int columnNumber) {
             if (keepRecord) {
                 errorMap.computeIfAbsent(message, s -> new ErrorInfo());
                 errorMap.get(message).addOccurrence(lineNumber, columnNumber);
             }
-            logger.error("{} at {}:{} ERROR {}", fileName, lineNumber, columnNumber, message);
+            logger.error("{} at {}:{} ERROR {}", fileName, lineNumber,
+                    columnNumber, message);
         }
 
         public Map<String, ErrorInfo> getErrorMap() {
@@ -162,10 +161,9 @@ public class I5Validator {
 
     }
 
-
-
     /**
      * validate using DOM (DTD as defined in the XML)
+     *
      * @return whether document is valid
      */
     public boolean validateWithDTDUsingDOM(InputStream xml, String name)
@@ -195,26 +193,39 @@ public class I5Validator {
 
     /**
      * validate using SAX (DTD as defined in the XML)
+     *
      * @return whether document is valid
      */
     public boolean validateWithDTDUsingSAX(InputStream xml, String name)
             throws ParserConfigurationException, IOException {
         try {
 
-            SAXParserFactory factory = SAXParserFactory
-                    .newInstance();
+            SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setValidating(true);
             factory.setNamespaceAware(true);
             factory.setFeature("http://xml.org/sax/features/namespaces", true);
             factory.setFeature("http://xml.org/sax/features/validation", true);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", true);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", true);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                    true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    true);
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-general-entities",
+                    true);
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-parameter-entities",
+                    true);
             factory.setXIncludeAware(true);
             SAXParser parser = factory.newSAXParser();
 
             XMLReader reader = parser.getXMLReader();
+            reader.setEntityResolver((publicId, systemId) -> {
+                logger.info("LOADING ENTITY public: «{}» sys: «{}»", publicId,
+                        systemId);
+                return null; // default
+            });
             CollectingErrorHandler handler = new CollectingErrorHandler(name,
                     keepRecord);
             reader.setErrorHandler(handler);
@@ -248,10 +259,8 @@ public class I5Validator {
 
     }
 
-
     private Map<String, Map<String, ErrorInfo>> getErrorMap() {
         return errorMap;
     }
 
 }
-
