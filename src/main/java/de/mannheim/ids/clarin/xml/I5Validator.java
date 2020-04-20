@@ -246,7 +246,7 @@ public class I5Validator {
                 errorMap.put(name, handler.getErrorMap());
             return handler.isValid;
         } catch (SAXException se) {
-            throw new RuntimeException(se);
+            return false;
         }
     }
 
