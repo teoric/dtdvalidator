@@ -74,7 +74,7 @@ public class I5Validator {
                 .compile("^.*?not allowed anywhere(?=\\p{P})");
         private final String fileName;
         private final boolean keepRecord;
-        private boolean isValid;
+        private boolean isValid = true;
         /**
          * a map of error messages
          */
