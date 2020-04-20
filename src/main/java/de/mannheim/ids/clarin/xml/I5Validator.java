@@ -190,7 +190,7 @@ public class I5Validator {
     }
 
     /**
-     * validate using SAX (DTD as defined in the XML)
+     * validate using SAX (DTD or XSD as defined in the XML)
      *
      * @return whether document is valid
      */
@@ -214,6 +214,8 @@ public class I5Validator {
                     true);
             factory.setFeature(
                     "http://xml.org/sax/features/external-parameter-entities",
+                    true);
+            factory.setFeature("http://apache.org/xml/features/validation/schema",
                     true);
             factory.setXIncludeAware(true);
             SAXParser parser = factory.newSAXParser();
