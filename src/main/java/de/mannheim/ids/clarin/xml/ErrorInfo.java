@@ -57,7 +57,7 @@ public class ErrorInfo {
 
         @Override
         public void serialize(Occurrence value, JsonGenerator jgen,
-                              SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws IOException {
 
             jgen.writeStartObject();
             if (value.line > 0)
@@ -81,23 +81,17 @@ public class ErrorInfo {
 
         @Override
         public Occurrence deserialize(JsonParser jp,
-                                      DeserializationContext ctxt)
+                DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
             JsonNode node = jp.getCodec().readTree(jp);
             JsonNode lineNode = node.get("line");
             JsonNode colNode = node.get("col");
-            JsonNode offendingNode = node.get("offendingLine");
             int col = colNode != null
                     ? (Integer) ((IntNode) colNode).numberValue()
                     : 0;
             int line = lineNode != null
                     ? (Integer) ((IntNode) lineNode).numberValue()
                     : 0;
-            String offendingLine = offendingNode != null
-                    ? offendingNode.asText()
-                    : null;
-            int userId = (Integer) ((IntNode) node.get("createdBy"))
-                    .numberValue();
 
             return new Occurrence(line, col);
         }
