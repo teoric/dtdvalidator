@@ -44,6 +44,9 @@ public class I5ValidatorRunner implements Callable<Integer> {
     @CommandLine.Option(names = { "-d", "--dom" }, description = "use DOM "
             + "instead of SAX")
     private boolean dom = false;
+    @CommandLine.Option(names = { "-S",
+            "--use-schema" }, description = "use XSD with DOM, ignore DTD")
+    private boolean useSchema = false;
     @CommandLine.Option(names = { "-l",
             "--log-to-json" }, description = "collect errors "
                     + "and write log file")
@@ -62,7 +65,6 @@ public class I5ValidatorRunner implements Callable<Integer> {
         inputs.forEach(inputFile -> {
 
             String name = inputFile.toString();
-            logger.info("Validating {}", name);
             switch (FilenameUtils.getExtension(name)) {
             case "xz":
                 compression = Compression.xz;
@@ -97,9 +99,13 @@ public class I5ValidatorRunner implements Callable<Integer> {
                     break;
                 }
                 boolean result;
+                dom = dom || useSchema;
+                logger.info("Validating {} using {}{}", name,
+                        dom ? "DOM" : "SAX",
+                        useSchema ? " and XSD from xsi:schemaLocation" : "");
                 if (dom)
                     result = validator.validateWithDTDUsingDOM(inputStream,
-                            name);
+                            name, useSchema);
                 else
                     result = validator.validateWithDTDUsingSAX(inputStream,
                             name);

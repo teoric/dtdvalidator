@@ -166,7 +166,8 @@ public class I5Validator {
      *
      * @return whether document is valid
      */
-    public boolean validateWithDTDUsingDOM(InputStream xml, String name)
+    public boolean validateWithDTDUsingDOM(InputStream xml, String name,
+            boolean useSchema)
             throws ParserConfigurationException, IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory
@@ -175,6 +176,10 @@ public class I5Validator {
             factory.setNamespaceAware(true);
             factory.setXIncludeAware(true);
             factory.setExpandEntityReferences(true);
+            if (useSchema)
+                factory.setAttribute(
+                        "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                        "http://www.w3.org/2001/XMLSchema");
 
             DocumentBuilder builder = factory.newDocumentBuilder();
             CollectingErrorHandler handler = new CollectingErrorHandler(name,
@@ -215,8 +220,8 @@ public class I5Validator {
             factory.setFeature(
                     "http://xml.org/sax/features/external-parameter-entities",
                     true);
-            factory.setFeature("http://apache.org/xml/features/validation/schema",
-                    true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/validation/schema", true);
             factory.setXIncludeAware(true);
             SAXParser parser = factory.newSAXParser();
 
