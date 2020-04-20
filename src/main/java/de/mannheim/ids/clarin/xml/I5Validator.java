@@ -74,6 +74,7 @@ public class I5Validator {
                 .compile("^.*?not allowed anywhere(?=\\p{P})");
         private final String fileName;
         private final boolean keepRecord;
+        private boolean isValid;
         /**
          * a map of error messages
          */
@@ -152,11 +153,17 @@ public class I5Validator {
         @Override
         public void fatalError(SAXParseException exception) {
             addException(exception);
+            isValid = false;
         }
 
         @Override
         public void error(SAXParseException exception) {
             addException(exception);
+            isValid = false;
+        }
+
+        public boolean isValid() {
+            return isValid;
         }
 
     }
@@ -188,7 +195,7 @@ public class I5Validator {
             builder.parse(new InputSource(xml));
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
-            return true;
+            return handler.isValid;
         } catch (SAXException se) {
             return false;
         }
@@ -237,9 +244,9 @@ public class I5Validator {
             reader.parse(new InputSource(xml));
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
-            return true;
+            return handler.isValid;
         } catch (SAXException se) {
-            return false;
+            throw new RuntimeException(se);
         }
     }
 
