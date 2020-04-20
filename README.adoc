@@ -17,7 +17,7 @@ Read help, validate ;-)
 
 Features:
 
-- validate against DTD (referenced in the file) and XSD (via https://www.w3.org/TR/xmlschema11-1/#xsi_schemaLocation[`xsi:schemaLocation`])
+- validate against DTD (referenced/defined in the file) and XSD (via https://www.w3.org/TR/xmlschema11-1/#xsi_schemaLocation[`xsi:schemaLocation`])
 - multiple files
 - writes log file
 - processes compressed streams (xz, bzip2, gz)
