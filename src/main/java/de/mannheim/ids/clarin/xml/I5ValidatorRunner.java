@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
@@ -54,6 +55,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
     @Override
     public Integer call() throws IOException, ParserConfigurationException {
         I5Validator validator = new I5Validator(writeLog);
+        AtomicInteger errorCount = new AtomicInteger();
 
         Stream<File> inputs = inputFiles.stream();
         if (parallel) {
@@ -107,6 +109,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
                     logger.info("Document {} validated", name);
                 } else {
                     logger.info("Document {} did not validate", name);
+                    errorCount.getAndIncrement();
                 }
             } catch (IOException | ParserConfigurationException e) {
                 throw new RuntimeException(e);
@@ -114,7 +117,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
         });
         if (writeLog)
             validator.writeErrorMap(new File(logFileName));
-        return 0;
+        return errorCount.get();
     }
 
     /**
