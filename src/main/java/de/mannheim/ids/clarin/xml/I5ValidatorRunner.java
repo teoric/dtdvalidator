@@ -26,26 +26,29 @@ public class I5ValidatorRunner implements Callable<Integer> {
     static private Logger logger = LoggerFactory
             .getLogger(I5Validator.class.getSimpleName());
 
-    static String LOGFILE_NAME = "i5validation.log";
-    @CommandLine.Option(names = "--parallel", description = "use multiple threads")
-    private boolean parallel;
-
     private enum Compression {
         none, bzip2, gzip, xz
     }
+
+    @CommandLine.Option(names = { "-L",
+            "--log-file" }, defaultValue = "i5validation.log", description = "log file name (default: ${DEFAULT-VALUE})")
+    String logFileName;
+    @CommandLine.Option(names = { "-p",
+            "--parallel" }, description = "use multiple threads")
+    private boolean parallel;
 
     @CommandLine.Option(names = { "-c",
             "--compression" }, description = "compression: ${COMPLETION-CANDIDATES}, default: "
                     + "${DEFAULT-VALUE} (overridden from file name!)", defaultValue = "none")
     Compression compression;
-    @CommandLine.Parameters(arity = "1..*", description = "input files")
-    private List<File> inputFiles;
     @CommandLine.Option(names = { "-d", "--dom" }, description = "use DOM "
             + "instead of SAX")
     private boolean dom = false;
     @CommandLine.Option(names = { "-l",
             "--log-to-json" }, description = "collect errors "
-                    + "and write i5validation.log")
+                    + "and write log file")
+    @CommandLine.Parameters(arity = "1..*", description = "input files")
+    private List<File> inputFiles;
     private boolean writeLog = false;
 
     @Override
@@ -110,7 +113,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
             }
         });
         if (writeLog)
-            validator.writeErrorMap(new File(LOGFILE_NAME));
+            validator.writeErrorMap(new File(logFileName));
         return 0;
     }
 
