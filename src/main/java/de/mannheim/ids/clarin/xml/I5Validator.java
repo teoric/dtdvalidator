@@ -177,13 +177,12 @@ public class I5Validator {
             factory.setExpandEntityReferences(true);
 
             DocumentBuilder builder = factory.newDocumentBuilder();
-            CollectingErrorHandler handler = new CollectingErrorHandler(name,
-                    keepRecord);
+            CollectingErrorHandler handler = new CollectingErrorHandler(name, true);
             builder.setErrorHandler(handler);
             builder.parse(new InputSource(xml));
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
-            return true;
+            return (handler.errorMap.isEmpty());
         } catch (SAXException se) {
             return false;
         }
@@ -226,13 +225,12 @@ public class I5Validator {
                         publicId, systemId);
                 return null; // default
             });
-            CollectingErrorHandler handler = new CollectingErrorHandler(name,
-                    keepRecord);
+            CollectingErrorHandler handler = new CollectingErrorHandler(name, true);
             reader.setErrorHandler(handler);
             reader.parse(new InputSource(xml));
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
-            return true;
+            return (handler.errorMap.isEmpty());
         } catch (SAXException se) {
             return false;
         }
