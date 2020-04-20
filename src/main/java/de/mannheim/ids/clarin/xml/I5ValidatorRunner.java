@@ -31,7 +31,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
     }
 
     @CommandLine.Option(names = { "-L",
-            "--log-file" }, defaultValue = "i5validation.log", description = "log file name (default: ${DEFAULT-VALUE})")
+            "--log-file" }, defaultValue = "i5validation.json", description = "log file name (default: ${DEFAULT-VALUE})")
     String logFileName;
     @CommandLine.Option(names = { "-p",
             "--parallel" }, description = "use multiple threads")
@@ -47,9 +47,9 @@ public class I5ValidatorRunner implements Callable<Integer> {
     @CommandLine.Option(names = { "-l",
             "--log-to-json" }, description = "collect errors "
                     + "and write log file")
+    private boolean writeLog = false;
     @CommandLine.Parameters(arity = "1..*", description = "input files")
     private List<File> inputFiles;
-    private boolean writeLog = false;
 
     @Override
     public Integer call() throws IOException, ParserConfigurationException {
