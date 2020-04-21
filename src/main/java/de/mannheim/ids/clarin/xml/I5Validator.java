@@ -54,6 +54,10 @@ public class I5Validator {
             factory.setNamespaceAware(true);
             factory.setXIncludeAware(true);
             factory.setExpandEntityReferences(true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/continue-after-fatal-error",
+                    true);
+
             if (useSchema)
                 factory.setAttribute(
                         "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
@@ -106,6 +110,9 @@ public class I5Validator {
                     true);
             factory.setFeature(
                     "http://apache.org/xml/features/validation/schema", true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/continue-after-fatal-error",
+                    true);
             factory.setXIncludeAware(true);
             SAXParser parser = factory.newSAXParser();
 
@@ -206,13 +213,13 @@ public class I5Validator {
          * @param exception
          *     encountered during parsing
          */
-        private void addException(SAXParseException exception) {
+        private void addException(String type, SAXParseException exception) {
             String message = exception.getMessage();
             Matcher notAnywhereMatcher = notAnywhere.matcher(message);
             if (notAnywhereMatcher.find()) {
                 message = notAnywhereMatcher.group();
             }
-            addErrorInfo(message, exception.getLineNumber(),
+            addErrorInfo(type, message, exception.getLineNumber(),
                     exception.getColumnNumber());
         }
 
@@ -226,14 +233,16 @@ public class I5Validator {
          * @param columnNumber
          *     the column number
          */
-        private void addErrorInfo(String message, int lineNumber,
+        private void addErrorInfo(String type, String message, int lineNumber,
                 int columnNumber) {
+            logger.error("{} at {}:{} {} {}", fileName, lineNumber,
+                    columnNumber, type, message);
+            String storeMessage = String.format("[%s] %s", type, message);
             if (keepRecord) {
-                errorMap.computeIfAbsent(message, s -> new ErrorInfo());
-                errorMap.get(message).addOccurrence(lineNumber, columnNumber);
+                errorMap.computeIfAbsent(storeMessage, s -> new ErrorInfo());
+                errorMap.get(storeMessage).addOccurrence(lineNumber,
+                        columnNumber);
             }
-            logger.error("{} at {}:{} ERROR {}", fileName, lineNumber,
-                    columnNumber, message);
         }
 
         public Map<String, ErrorInfo> getErrorMap() {
@@ -242,18 +251,18 @@ public class I5Validator {
 
         @Override
         public void warning(SAXParseException exception) {
-            addException(exception);
+            addException("WARNING", exception);
         }
 
         @Override
         public void fatalError(SAXParseException exception) {
-            addException(exception);
+            addException("FATAL_ERROR", exception);
             isValid = false;
         }
 
         @Override
         public void error(SAXParseException exception) {
-            addException(exception);
+            addException("ERROR", exception);
             isValid = false;
         }
 
