@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
         <jackson.version>[2.10.3,)</jackson.version>
-        <junit.subversion>6.1</junit.subversion>
+        <junit.subversion>6.2</junit.subversion>
         <junit.version>5.${junit.subversion}</junit.version>
         <junit.aux.version>1.${junit.subversion}</junit.aux.version>
     </properties>
