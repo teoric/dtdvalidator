@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +25,7 @@ import picocli.CommandLine;
         + "and validate XML files", versionProvider = VersionProvider.class)
 public class I5ValidatorRunner implements Callable<Integer> {
 
-    static private Logger logger = LoggerFactory
+    static private final Logger logger = LoggerFactory
             .getLogger(I5Validator.class.getSimpleName());
 
     private enum Compression {
@@ -46,17 +47,17 @@ public class I5ValidatorRunner implements Callable<Integer> {
             + "instead of SAX")
     private boolean dom = false;
     @CommandLine.Option(names = { "-S",
-            "--use-schema" }, description = "use XSD with DOM, ignore DTD")
+            "--use-schema" }, description = "use XSD with DOM, ignore DTD (implies -d)")
     private boolean useSchema = false;
     @CommandLine.Option(names = { "-l",
             "--log-to-json" }, description = "collect errors "
                     + "and write log file")
     private boolean writeLog = false;
     @CommandLine.Parameters(arity = "1..*", description = "input files")
-    private List<File> inputFiles;
+    private List<File> inputFiles = new ArrayList<>();
 
     @Override
-    public Integer call() throws IOException, ParserConfigurationException {
+    public Integer call() {
         I5Validator validator = new I5Validator(writeLog);
         AtomicInteger errorCount = new AtomicInteger();
 
@@ -82,7 +83,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
             }
 
             try (InputStream originalInputStream = new FileInputStream(
-                    inputFile);) {
+                    inputFile)) {
                 InputStream inputStream;
                 switch (compression) {
                 case xz:
@@ -96,6 +97,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
                 case gzip:
                     inputStream = new GZIPInputStream(originalInputStream);
                     break;
+                case none:  // i.e.
                 default:
                     inputStream = originalInputStream;
                     break;
@@ -129,7 +131,7 @@ public class I5ValidatorRunner implements Callable<Integer> {
     /**
      * run CLI
      *
-     * @param args
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         System.exit(new CommandLine(new I5ValidatorRunner()).execute(args));

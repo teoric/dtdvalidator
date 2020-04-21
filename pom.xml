@@ -55,7 +55,7 @@
                 <version>3.1.1</version>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <source>${maven.compiler.source}</source>
+                    <source>${maven.compiler.release}</source>
                     <javadocExecutable>${java.home}/bin/javadoc
                     </javadocExecutable>
                 </configuration>

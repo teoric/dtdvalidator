@@ -28,37 +28,120 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class I5Validator {
 
-    static private Logger logger = LoggerFactory
+    static private final Logger logger = LoggerFactory
             .getLogger(I5Validator.class.getSimpleName());
     private final boolean keepRecord;
 
-    /**
-     * ErrorHandler that fails on encountering the first serious error
-     */
-    private static class FailingErrorHandler implements ErrorHandler {
-        @Override
-        public void warning(SAXParseException e) throws SAXException {
-            logger.warn("WARNING : " + e.getMessage()); // do nothing
-        }
-
-        @Override
-        public void error(SAXParseException e) throws SAXException {
-            logger.error("ERROR : " + e.getMessage());
-            throw e;
-        }
-
-        @Override
-        public void fatalError(SAXParseException e) throws SAXException {
-            logger.error("FATAL : " + e.getMessage());
-            throw e;
-        }
-    }
-
-    private ConcurrentHashMap<String, Map<String, ErrorInfo>> errorMap;
+    private final ConcurrentHashMap<String, Map<String, ErrorInfo>> errorMap;
 
     I5Validator(boolean keepRecord) {
         this.keepRecord = keepRecord;
         errorMap = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * validate using DOM (DTD as defined in the XML)
+     *
+     * @return whether document is valid
+     */
+    public boolean validateWithDTDUsingDOM(InputStream xml, String name,
+            boolean useSchema)
+            throws ParserConfigurationException, IOException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory
+                    .newInstance();
+            factory.setValidating(true);
+            factory.setNamespaceAware(true);
+            factory.setXIncludeAware(true);
+            factory.setExpandEntityReferences(true);
+            if (useSchema)
+                factory.setAttribute(
+                        "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                        "http://www.w3.org/2001/XMLSchema");
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            CollectingErrorHandler handler = new CollectingErrorHandler(name,
+                    keepRecord);
+            builder.setErrorHandler(handler);
+            builder.parse(new InputSource(xml));
+            if (keepRecord)
+                errorMap.put(name, handler.getErrorMap());
+            return handler.isValid();
+        } catch (SAXException se) {
+            return false;
+        }
+    }
+
+    /**
+     * validate using SAX (DTD or XSD as defined in the XML)
+     *
+     * @return whether document is valid
+     */
+    public boolean validateWithDTDUsingSAX(InputStream xml, String name)
+            throws ParserConfigurationException, IOException {
+        try {
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setValidating(true);
+            factory.setNamespaceAware(true);
+            factory.setFeature("http://xml.org/sax/features/namespaces", true);
+            factory.setFeature("http://xml.org/sax/features/validation", true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                    true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    true);
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-general-entities",
+                    true);
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-parameter-entities",
+                    true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/validation/schema", true);
+            factory.setXIncludeAware(true);
+            SAXParser parser = factory.newSAXParser();
+
+            XMLReader reader = parser.getXMLReader();
+            reader.setEntityResolver((publicId, systemId) -> {
+                logger.info("LOADING ENTITY public: '{}' system: '{}'",
+                        publicId, systemId);
+                return null; // default
+            });
+            CollectingErrorHandler handler = new CollectingErrorHandler(name,
+                    keepRecord);
+            reader.setErrorHandler(handler);
+            reader.parse(new InputSource(xml));
+            if (keepRecord)
+                errorMap.put(name, handler.getErrorMap());
+            return handler.isValid;
+        } catch (SAXException se) {
+            throw new RuntimeException(se);
+        }
+    }
+
+    /**
+     * write error map to a JSON file
+     *
+     * @param file
+     *     the file
+     */
+    public void writeErrorMap(File file) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            assert getErrorMap() != null;
+            logger.info("number of checked files: {}", getErrorMap().size());
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file,
+                    getErrorMap());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private Map<String, Map<String, ErrorInfo>> getErrorMap() {
+        return errorMap;
     }
 
     /**
@@ -74,13 +157,13 @@ public class I5Validator {
                 .compile("^.*?not allowed anywhere(?=\\p{P})");
         private final String fileName;
         private final boolean keepRecord;
+        final Logger logger = LoggerFactory
+                .getLogger(CollectingErrorHandler.class.getSimpleName());
         private boolean isValid = true;
         /**
          * a map of error messages
          */
         private Map<String, ErrorInfo> errorMap;
-        Logger logger = LoggerFactory
-                .getLogger(CollectingErrorHandler.class.getSimpleName());
 
         /**
          * an error handler that collects its errors in a list
@@ -166,111 +249,6 @@ public class I5Validator {
             return isValid;
         }
 
-    }
-
-    /**
-     * validate using DOM (DTD as defined in the XML)
-     *
-     * @return whether document is valid
-     */
-    public boolean validateWithDTDUsingDOM(InputStream xml, String name,
-            boolean useSchema)
-            throws ParserConfigurationException, IOException {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory
-                    .newInstance();
-            factory.setValidating(true);
-            factory.setNamespaceAware(true);
-            factory.setXIncludeAware(true);
-            factory.setExpandEntityReferences(true);
-            if (useSchema)
-                factory.setAttribute(
-                        "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                        "http://www.w3.org/2001/XMLSchema");
-
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            CollectingErrorHandler handler = new CollectingErrorHandler(name,
-                    keepRecord);
-            builder.setErrorHandler(handler);
-            builder.parse(new InputSource(xml));
-            if (keepRecord)
-                errorMap.put(name, handler.getErrorMap());
-            return handler.isValid;
-        } catch (SAXException se) {
-            return false;
-        }
-    }
-
-    /**
-     * validate using SAX (DTD or XSD as defined in the XML)
-     *
-     * @return whether document is valid
-     */
-    public boolean validateWithDTDUsingSAX(InputStream xml, String name)
-            throws ParserConfigurationException, IOException {
-        try {
-
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setValidating(true);
-            factory.setNamespaceAware(true);
-            factory.setFeature("http://xml.org/sax/features/namespaces", true);
-            factory.setFeature("http://xml.org/sax/features/validation", true);
-            factory.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
-                    true);
-            factory.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    true);
-            factory.setFeature(
-                    "http://xml.org/sax/features/external-general-entities",
-                    true);
-            factory.setFeature(
-                    "http://xml.org/sax/features/external-parameter-entities",
-                    true);
-            factory.setFeature(
-                    "http://apache.org/xml/features/validation/schema", true);
-            factory.setXIncludeAware(true);
-            SAXParser parser = factory.newSAXParser();
-
-            XMLReader reader = parser.getXMLReader();
-            reader.setEntityResolver((publicId, systemId) -> {
-                logger.info("LOADING ENTITY public: '{}' system: '{}'",
-                        publicId, systemId);
-                return null; // default
-            });
-            CollectingErrorHandler handler = new CollectingErrorHandler(name,
-                    keepRecord);
-            reader.setErrorHandler(handler);
-            reader.parse(new InputSource(xml));
-            if (keepRecord)
-                errorMap.put(name, handler.getErrorMap());
-            return handler.isValid;
-        } catch (SAXException se) {
-            throw new RuntimeException(se);
-        }
-    }
-
-    /**
-     * write error map to a JSON file
-     *
-     * @param file
-     *     the file
-     */
-    public void writeErrorMap(File file) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            assert getErrorMap() != null;
-            logger.info("number of checked files: {}", getErrorMap().size());
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file,
-                    getErrorMap());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    private Map<String, Map<String, ErrorInfo>> getErrorMap() {
-        return errorMap;
     }
 
 }

@@ -33,16 +33,8 @@ public class ErrorInfo {
         this.occurrences.add(new Occurrence(line, col));
     }
 
-    public void addOccurrences(List<Occurrence> occurrences) {
-        this.occurrences.addAll(occurrences);
-    }
-
     public List<Occurrence> getOccurrences() {
         return occurrences;
-    }
-
-    public int size() {
-        return occurrences.size();
     }
 
     public static class OccurrenceSerializer extends StdSerializer<Occurrence> {

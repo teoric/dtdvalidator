@@ -1,10 +1,3 @@
-/**
- *
- */
-/**
- * @author bernh
- *
- */
 module i5validator {
     exports de.mannheim.ids.clarin.xml;
 
