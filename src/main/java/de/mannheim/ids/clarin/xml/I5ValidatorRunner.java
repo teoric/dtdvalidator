@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import picocli.CommandLine;
 
-@CommandLine.Command(mixinStandardHelpOptions = true, description = "process "
+@CommandLine.Command(mixinStandardHelpOptions = true,
+        name = "i5validator", description = "process "
         + "and validate XML files", versionProvider = VersionProvider.class)
 public class I5ValidatorRunner implements Callable<Integer> {
 
