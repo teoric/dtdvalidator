@@ -63,7 +63,13 @@ public class I5Validator {
             CollectingErrorHandler handler = new CollectingErrorHandler(name,
                     keepRecord);
             builder.setErrorHandler(handler);
-            builder.parse(new InputSource(xml));
+            try {
+                builder.parse(new InputSource(xml));
+            } catch (SAXParseException e) {
+                logger.error(
+                        "{} fatally invalid / not well-formed – error list may not be complete",
+                        name);
+            }
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
             return handler.isValid();
@@ -112,7 +118,13 @@ public class I5Validator {
             CollectingErrorHandler handler = new CollectingErrorHandler(name,
                     keepRecord);
             reader.setErrorHandler(handler);
-            reader.parse(new InputSource(xml));
+            try {
+                reader.parse(new InputSource(xml));
+            } catch (SAXParseException e) {
+                logger.error(
+                        "{} fatally invalid / not well-formed – error list may not be complete",
+                        name);
+            }
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
             return handler.isValid;
@@ -153,7 +165,7 @@ public class I5Validator {
          * pattern to recognise the messages about completely disallowed
          * elements
          */
-        private final Pattern notAnywhere = Pattern
+        private static final Pattern notAnywhere = Pattern
                 .compile("^.*?not allowed anywhere(?=\\p{P})");
         private final String fileName;
         private final boolean keepRecord;
@@ -188,8 +200,8 @@ public class I5Validator {
         }
 
         /**
-         * add a RelaxNG SAXException, extract info and put it into the errorMap
-         * and errorList
+         * add a SAXException, extract info and put it into the errorMap and
+         * errorList
          *
          * @param exception
          *     encountered during parsing
