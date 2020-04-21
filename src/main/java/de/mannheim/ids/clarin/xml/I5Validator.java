@@ -67,8 +67,8 @@ public class I5Validator {
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
             return handler.isValid();
-        } catch (SAXException se) {
-            return false;
+        } catch (SAXException se) { // anything but parsing errors
+            throw new RuntimeException(se);
         }
     }
 
@@ -116,7 +116,7 @@ public class I5Validator {
             if (keepRecord)
                 errorMap.put(name, handler.getErrorMap());
             return handler.isValid;
-        } catch (SAXException se) {
+        } catch (SAXException se) { // anything but parsing errors
             throw new RuntimeException(se);
         }
     }
