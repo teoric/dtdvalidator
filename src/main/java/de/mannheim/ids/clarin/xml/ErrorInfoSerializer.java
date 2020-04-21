@@ -22,7 +22,7 @@ public class ErrorInfoSerializer extends StdSerializer<ErrorInfo> {
             throws IOException {
 
         jgen.writeStartObject();
-        jgen.writeFieldName("occcurrences");
+        jgen.writeFieldName("occurrences");
         jgen.writeStartArray();
         for (ErrorInfo.Occurrence occ : value.getOccurrences()) {
             jgen.writeObject(occ);
