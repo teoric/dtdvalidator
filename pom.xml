@@ -11,6 +11,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
         <jackson.version>[2.10.3,)</jackson.version>
+        <junit.subversion>6.1</junit.subversion>
+        <junit.version>5.${junit.subversion}</junit.version>
+        <junit.aux.version>1.${junit.subversion}</junit.aux.version>
     </properties>
     <build>
         <resources>
@@ -143,6 +146,21 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <!--<groups>fast</groups>-->
+                    <excludedGroups>slow</excludedGroups>
+                    <properties>
+                        <!--
+                        <configurationParameters>
+                            junit.jupiter.conditions.deactivate = *
+                        </configurationParameters>
+                        -->
+                    </properties>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -191,10 +209,16 @@
             <version>2.12.0</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
