@@ -37,4 +37,5 @@ Parsing based on code from <https://www.rgagnon.com/javadetails/java-0668.html>
 == License
 
 Don't blame, +
-Don't sell.
+Don't sell, +
+And all is well.
