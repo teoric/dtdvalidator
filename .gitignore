@@ -8,3 +8,4 @@ cache_store
 /bin/
 *.log
 i5validation.json
+i5validation.log
