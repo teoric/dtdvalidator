@@ -42,7 +42,17 @@ public class I5Validator {
     /**
      * validate using DOM (DTD as defined in the XML)
      *
+     * @param xml
+     *     the XML input
+     * @param name
+     *     the file name
+     * @param useSchema
+     *     whether to use XSD instead of DTD
      * @return whether document is valid
+     * @throws ParserConfigurationException
+     *     in case of error
+     * @throws IOException
+     *     in case of error
      */
     public boolean validateWithDTDUsingDOM(InputStream xml, String name,
             boolean useSchema)
@@ -60,7 +70,8 @@ public class I5Validator {
 
             if (useSchema)
                 factory.setAttribute(
-                        "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                        "http://java.sun.com/xml/jaxp/properties"
+                                + "/schemaLanguage",
                         "http://www.w3.org/2001/XMLSchema");
 
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -71,7 +82,8 @@ public class I5Validator {
                 builder.parse(new InputSource(xml));
             } catch (SAXParseException e) {
                 logger.error(
-                        "{} fatally invalid / not well-formed – error list may not be complete",
+                        "{} fatally invalid / not well-formed – error list "
+                                + "may not be complete",
                         name);
             }
             if (keepRecord)
@@ -85,7 +97,15 @@ public class I5Validator {
     /**
      * validate using SAX (DTD or XSD as defined in the XML)
      *
+     * @param xml
+     *     the XML input
+     * @param name
+     *     the file name
      * @return whether document is valid
+     * @throws ParserConfigurationException
+     *     in case of error
+     * @throws IOException
+     *     in case of error
      */
     public boolean validateWithDTDUsingSAX(InputStream xml, String name)
             throws ParserConfigurationException, IOException {
@@ -97,10 +117,12 @@ public class I5Validator {
             factory.setFeature("http://xml.org/sax/features/namespaces", true);
             factory.setFeature("http://xml.org/sax/features/validation", true);
             factory.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                    "http://apache.org/xml/features/nonvalidating/load-dtd"
+                            + "-grammar",
                     true);
             factory.setFeature(
-                    "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    "http://apache.org/xml/features/nonvalidating/load"
+                            + "-external-dtd",
                     true);
             factory.setFeature(
                     "http://xml.org/sax/features/external-general-entities",
@@ -129,7 +151,8 @@ public class I5Validator {
                 reader.parse(new InputSource(xml));
             } catch (SAXParseException e) {
                 logger.error(
-                        "{} fatally invalid / not well-formed – error list may not be complete",
+                        "{} fatally invalid / not well-formed – error list "
+                                + "may not be complete",
                         name);
             }
             if (keepRecord)
@@ -186,7 +209,6 @@ public class I5Validator {
 
         /**
          * an error handler that collects its errors in a list
-         *
          */
         CollectingErrorHandler(String name, boolean keepRecord) {
             fileName = name;
@@ -200,7 +222,6 @@ public class I5Validator {
 
         /**
          * reset the Handler
-         *
          */
         public void reset() {
             errorMap = new ConcurrentHashMap<>();

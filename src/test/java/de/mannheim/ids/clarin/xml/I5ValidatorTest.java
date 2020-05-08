@@ -21,14 +21,14 @@ public class I5ValidatorTest {
     }
 
     @org.junit.jupiter.api.Test
-    public void checkDTDvalidWithValidateWithDTDUsingDOM() throws IOException, ParserConfigurationException {
+    public void checkDTDValidWithValidateWithDTDUsingDOM() throws IOException, ParserConfigurationException {
         final String validFileName = "goe.dtdvalid.i5.xml";
         InputStream inputStream = getResourceAsStream(validFileName);
         assertTrue(i5Validator.validateWithDTDUsingDOM(inputStream, validFileName, false));
     }
 
     @org.junit.jupiter.api.Test
-    public void checkDTDinvalidWithValidateWithDTDUsingDOM() throws IOException, ParserConfigurationException {
+    public void checkDTDInvalidWithValidateWithDTDUsingDOM() throws IOException, ParserConfigurationException {
         final String invalidFileName = "goe.dtdinvalid.i5.xml";
         InputStream inputStream = getResourceAsStream(invalidFileName);
         assertFalse(i5Validator.validateWithDTDUsingDOM(inputStream, invalidFileName, false));
@@ -49,31 +49,31 @@ public class I5ValidatorTest {
     }
 
     @org.junit.jupiter.api.Test
-    public void checkDTDvalidWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
+    public void checkDTDValidWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
         final String validFileName = "goe.dtdvalid.i5.xml";
         InputStream inputStream = getResourceAsStream(validFileName);
         assertTrue(i5Validator.validateWithDTDUsingSAX(inputStream, validFileName));
     }
 
     @org.junit.jupiter.api.Test
-    public void checkDTDinvalidWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
+    public void checkDTDInvalidWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
         final String invalidFileName = "goe.dtdinvalid.i5.xml";
         InputStream inputStream = getResourceAsStream(invalidFileName);
         assertFalse(i5Validator.validateWithDTDUsingSAX(inputStream, invalidFileName));
     }
 
     @org.junit.jupiter.api.Test
-    public void checkInvalidEntitiyWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
+    public void checkInvalidEntityWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
         final String invalidFileName = "goe.invalidEntity.i5.xml";
         InputStream inputStream = getResourceAsStream(invalidFileName);
         assertFalse(i5Validator.validateWithDTDUsingSAX(inputStream, invalidFileName));
     }
 
     @org.junit.jupiter.api.Test
-    public void checkIllformedWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
-        final String illformedFileName = "goe.illformed.i5.xml";
-        InputStream inputStream = getResourceAsStream(illformedFileName);
-        assertFalse(i5Validator.validateWithDTDUsingSAX(inputStream, illformedFileName));
+    public void checkIllFormedWithValidateWithDTDUsingSAX() throws IOException, ParserConfigurationException {
+        final String illFormedFileName = "goe.illformed.i5.xml";
+        InputStream inputStream = getResourceAsStream(illFormedFileName);
+        assertFalse(i5Validator.validateWithDTDUsingSAX(inputStream, illFormedFileName));
     }
 
 }
