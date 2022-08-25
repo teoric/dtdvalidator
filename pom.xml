@@ -11,11 +11,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
         <jackson.version>2.13.3</jackson.version>
-        <junit.subversion>8.2</junit.subversion>
+        <junit.subversion>9.0</junit.subversion>
         <junit.version>5.${junit.subversion}</junit.version>
         <junit.aux.version>1.${junit.subversion}</junit.aux.version>
         <picocli.version>4.6.3</picocli.version>
-        <logback.version>1.3.0-alpha16</logback.version>
+        <logback.version>1.3.0-beta0</logback.version>
     </properties>
     <build>
         <resources>
