@@ -10,7 +10,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
-        <jackson.version>2.13.4.1</jackson.version>
+        <jackson.version>2.13.4</jackson.version>
         <junit.subversion>9.0</junit.subversion>
         <junit.version>5.${junit.subversion}</junit.version>
         <junit.aux.version>1.${junit.subversion}</junit.aux.version>
@@ -207,7 +207,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson.version}.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.codelibs.xerces/xercesImpl -->
         <dependency>
